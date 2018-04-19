@@ -16,6 +16,7 @@ connection.connect(function(err) {
 var productID;
 var selProductPrice;
 var selProductStock;
+displayProducts();
 
 function displayProducts() {
     inquirer.prompt({
@@ -67,7 +68,7 @@ function quantityPrompt(stock) {
         if (answer.name > stock) {
         console.log("Thank you! Your order has been placed.");
         var query = "UPDATE products SET ? WHERE ?";
-        connection.query(query, {stock_quantity: stock_quantity - answer.name, item_id = productID}, function(err, res) {
+        connection.query(query, {stock_quantity: stock_quantity - answer.name, item_id: productID}, function(err, res) {
             if (err) throw err;
             var total = selProductPrice * answer.name;
             console.log(`Your total order is: ${total}`); 
