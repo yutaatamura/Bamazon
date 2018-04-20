@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require("cli-table");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -29,13 +30,20 @@ function displayProducts() {
             var query = "SELECT item_id, product_name, price FROM products";
             connection.query(query, function(err, res) {
                 if(err) throw err;
+                var table = new Table({
+                    head: ['Item ID', 'Product', 'Price']
+                });
+
                 for (var i=0; i<res.length; i++) {
-                console.log(`------------------------------------------------   
-Item ID: ${res[i].item_id}
-Item Name: ${res[i].product_name}
-Price: $${res[i].price}
-`)
+                table.push([res[i].item_id, res[i].product_name, '$'+res[i].price]);
+
+//                 console.log(`------------------------------------------------   
+// Item ID: ${res[i].item_id}
+// Item Name: ${res[i].product_name}
+// Price: $${res[i].price}
+// `)
                 }
+                console.log(table.toString());
                 productIDPrompt();
             })
         } else {
@@ -68,8 +76,6 @@ Price: $${res[0].price}
 Stock: ${res[0].stock_quantity}
 ________________________________________
 `);
-            console.log(selProductPrice);
-            console.log(selProductStock);
             quantityPrompt(selProductStock);
         })
     })
@@ -82,12 +88,17 @@ function quantityPrompt(stock) {
     }).then(function(answer) {
         
         if (answer.quantity < stock) {
-        console.log("Thank you! Your order has been placed.");
+        console.log(`
+        **************************************
+        Thank you! Your order has been placed.`);
         var query = "UPDATE products SET ? WHERE ?";
         connection.query(query, [{stock_quantity: stock - answer.quantity}, {item_id: productID}], function(err, res) {
             if (err) throw err;
             var total = selProductPrice * answer.quantity;
-            console.log(`Your total order is: $${total}`); 
+            console.log(`
+
+           Your total order is: $${total}
+        *************************************`); 
             reOrder();
         })
         } else {
